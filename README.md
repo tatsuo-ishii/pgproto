@@ -76,6 +76,17 @@ FE=> Sync
 FE=> Terminate
 ~~~~
 
+# Installation
+
+C compiler, PostgreSQL client library (libq) is required (the version
+does not matter).
+
+~~~~
+./configure
+make
+make install
+~~~~
+
 # Restrictions
 
 * You need to fully understand the frontend/backend protocol of PostgreSQL.
