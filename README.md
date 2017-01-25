@@ -1,6 +1,6 @@
 # What is Pgproto?
 
-Pgproto is a tool to test [PostgreSQL[(http://www.postgresql.org) or
+Pgproto is a tool to test [PostgreSQL](http://www.postgresql.org) or
 any other servers that understand the frontend/backend
 protocol. Pgproto reads a text file describing message data to be sent
 to PostgreSQL. Also Pgproto can read responses from PostgreSQL if
