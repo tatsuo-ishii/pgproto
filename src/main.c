@@ -70,7 +70,9 @@ int main(int argc, char **argv)
 		host = env;
 	if ((env = getenv("PGPORT")) != NULL && *env != '\0')
 		port = env;
-	else if ((env = getenv("PGUSER")) != NULL && *env != '\0')
+	if ((env = getenv("PGDATABASE")) != NULL && *env != '\0')
+		database = env;
+	if ((env = getenv("PGUSER")) != NULL && *env != '\0')
 		user = env;
 
 	while ((opt = getopt_long(argc, argv, "v?Dh:p:u:d:f:", long_options, &optindex)) != -1)
