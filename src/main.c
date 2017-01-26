@@ -145,9 +145,14 @@ static void show_version(void)
 static void usage(void)
 {
 	printf("Usage: %s\n"
-		   "-h, --hostname=HOSTNAME\n"
-		   "-p, --port=PORT\n"
-		   "-u, --user USERNAME\n",
+		   "-h, --hostname=HOSTNAME (default: UNIX domain socket)\n"
+		   "-p, --port=PORT (default: 5432)\n"
+		   "-u, --user USERNAME (default: OS user)\n"
+		   "-d, --database DATABASENAME (default: same as user)\n"
+		   "-f, --proto-data-file FILENAME (default: pgproto.data)\n"
+		   "-D, --debug\n"
+		   "-?, --help\n"
+		   "-v, --version\n",
 		PACKAGE);
 }
 

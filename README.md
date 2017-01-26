@@ -87,6 +87,20 @@ make
 make install
 ~~~~
 
+# Usage
+
+~~~~
+Usage: pgproto
+-h, --hostname=HOSTNAME (default: UNIX domain socket)
+-p, --port=PORT (default: 5432)
+-u, --user USERNAME (default: OS user)
+-d, --database DATABASENAME (default: same as user)
+-f, --proto-data-file FILENAME (default: pgproto.data)
+-D, --debug
+-?, --help
+-v, --version
+~~~~
+
 # Restrictions
 
 * You need to fully understand the frontend/backend protocol of PostgreSQL.
