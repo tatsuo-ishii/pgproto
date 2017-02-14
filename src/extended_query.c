@@ -274,6 +274,53 @@ void process_execute(char *buf, PGconn *conn)
 }
 
 /*
+ * Send describe messae. "conn" should at the point right after the message kind
+ * was read.
+ */
+void process_describe(char *buf, PGconn *conn)
+{
+	char kind;
+	int len;
+	char *stmt;
+	char *bufp;
+
+	SKIP_TABS(buf);
+
+	len = sizeof(int);
+
+	kind = buffer_read_char(buf, &bufp);
+	buf = bufp;
+	len += 1;
+
+	SKIP_TABS(buf);
+
+	stmt = buffer_read_string(buf, &bufp);
+	buf = bufp;
+	len += strlen(stmt)+1;
+
+	SKIP_TABS(buf);
+
+	if (kind == 'S')
+	{
+		fprintf(stderr, "FE=> Describe(stmt=\"%s\")\n", stmt);
+	}
+	else if (kind == 'P')
+	{
+		fprintf(stderr, "FE=> Describe(portal=\"%s\")\n", stmt);
+	}
+	else
+	{
+		fprintf(stderr, "Close: unknown kind:%c\n", kind);
+		exit(1);
+	}
+
+	send_char('D', conn);
+	send_int(len, conn);
+	send_char(kind, conn);
+	send_string(stmt, conn);
+}
+
+/*
  * Send close messae. "conn" should at the point right after the message kind
  * was read.
  */

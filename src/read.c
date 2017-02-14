@@ -116,6 +116,11 @@ void read_until_ready_for_query(PGconn *conn)
 				cont = 0;
 				break;
 
+			case 't':	/* Parameter description */
+				fprintf(stderr, "<= BE ParameterDescription\n");
+				read_and_discard(conn);
+				break;
+				
 			default:
 				fprintf(stderr, "<= BE (%c)\n", kind);
 				read_and_discard(conn);

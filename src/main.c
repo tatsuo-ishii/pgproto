@@ -343,6 +343,10 @@ static int process_message_type(int kind, char *buf, PGconn *conn)
 			process_execute(buf, conn);
 			break;
 
+		case 'D':
+			process_describe(buf, conn);
+			break;
+
 		case 'C':
 			process_close(buf, conn);
 			break;

@@ -21,6 +21,7 @@
 extern void process_parse(char *buf, PGconn *conn);
 extern void process_bind(char *buf, PGconn *conn);
 extern void process_execute(char *buf, PGconn *conn);
+extern void process_describe(char *buf, PGconn *conn);
 extern void process_close(char *buf, PGconn *conn);
 
 #endif
