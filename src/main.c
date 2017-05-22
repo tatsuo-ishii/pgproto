@@ -321,6 +321,12 @@ static int process_message_type(int kind, char *buf, PGconn *conn)
 			send_int(sizeof(int), conn);
 			break;
 
+		case 'H':
+			fprintf(stderr, "FE=> Flush\n");
+			send_char((char)kind, conn);
+			send_int(sizeof(int), conn);
+			break;
+
 		case 'Q':
 			buf++;
 			query = buffer_read_string(buf, &bufp);
