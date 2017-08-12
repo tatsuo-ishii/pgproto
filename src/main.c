@@ -182,31 +182,41 @@ static PGconn *connect_db(char *host, char *port, char *user, char *database)
 {
 	char conninfo[1024];
 	PGconn *conn;
+	size_t n;
 
 	conninfo[0] = '\0';
+	n = sizeof(conninfo);
 
 	if (host && host[0] != '\0')
 	{
-		strcat(conninfo, "host=");
-		strcat(conninfo, host);
+		n -= sizeof("host=");
+		strncat(conninfo, "host=", n);
+		n -= strlen(host)+1;
+		strncat(conninfo, host, n);
 	}
 
 	if (port && port[0] != '\0')
 	{
-		strcat(conninfo, " port=");
-		strcat(conninfo, port);
+		n -= sizeof("port=");
+		strncat(conninfo, " port=", n);
+		n -= strlen(port)+1;
+		strncat(conninfo, port, n);
 	}
 
 	if (user && user[0] != '\0')
 	{
-		strcat(conninfo, " user=");
+		n -= sizeof("user=");
+		strncat(conninfo, " user=", n);
+		n -= strlen(user)+1;
 		strcat(conninfo, user);
 	}
 
 	if (database && database[0] != '\0')
 	{
-		strcat(conninfo, " dbname=");
-		strcat(conninfo, database);
+		n -= sizeof("dbname=");
+		strncat(conninfo, " dbname=", n);
+		n -= strlen(database)+1;
+		strncat(conninfo, database, n);
 	}
 
 	conn = PQconnectdb(conninfo);
