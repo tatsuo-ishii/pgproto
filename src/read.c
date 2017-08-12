@@ -125,7 +125,12 @@ void read_until_ready_for_query(PGconn *conn)
 				fprintf(stderr, "<= BE EmptyQueryResponse\n");
 				read_and_discard(conn);
 				break;
-				
+
+			case 's':	/* Portal suspended */
+				fprintf(stderr, "<= BE PortalSuspended\n");
+				read_and_discard(conn);
+				break;
+
 			default:
 				fprintf(stderr, "<= BE (%c)\n", kind);
 				read_and_discard(conn);
