@@ -108,3 +108,5 @@ Usage: pgproto
 * Pgproto only supports V3 protocol.
 
 * Many message types are not supported yet (patches are welcome!)
+
+* Pgproto does not support SSL connections.
