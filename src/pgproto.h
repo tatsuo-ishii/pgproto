@@ -16,7 +16,6 @@
 #ifndef PGPROTO_H
 #define PGPROTO_H
 
-#define PGPROTO_VERSION "0.1"
 /*
  * The default file name for protocol data to be sent from frontend to backend
  */

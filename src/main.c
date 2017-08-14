@@ -141,7 +141,7 @@ int main(int argc, char **argv)
 
 static void show_version(void)
 {
-	fprintf(stderr, "%s version %s\n",	PACKAGE, PGPROTO_VERSION);
+	fprintf(stderr, "%s version %s\n",	PACKAGE, PACKAGE_VERSION);
 }
 
 static void usage(void)
