@@ -51,45 +51,35 @@ void read_until_ready_for_query(PGconn *conn)
 		kind = read_char(conn);
 		switch(kind)
 		{
-			case '1':	/* Parse Complete */
+			case '1':	/* Parse complete */
 				fprintf(stderr, "<= BE ParseComplete\n");
 				read_and_discard(conn);
 				break;
 
-			case '2':	/* Bind Complete */
+			case '2':	/* Bind complete */
 				fprintf(stderr, "<= BE BindComplete\n");
 				read_and_discard(conn);
 				break;
 
-			case '3':	/* Close Complete */
+			case '3':	/* Close complete */
 				fprintf(stderr, "<= BE CloseComplete\n");
 				read_and_discard(conn);
 				break;
 
-			case 'n':	/* No data */
-				fprintf(stderr, "<= BE NoData\n");
-				read_and_discard(conn);
-				break;
-
-			case 'T':	/* Row Description */
-				fprintf(stderr, "<= BE RowDescription\n");
-				read_and_discard(conn);
-				break;
-
-			case 'D':	/* Data Row */
-				fprintf(stderr, "<= BE DataRow\n");
-				read_and_discard(conn);
-				break;
-
-			case 'C':	/* Command Complete */
+			case 'C':	/* Command complete */
 				len = read_int32(conn);
 				buf = read_bytes(len - sizeof(int), conn);
 				fprintf(stderr, "<= BE CommandComplete(%s)\n", buf);
 				pg_free(buf);
 				break;
 
-			case 'E':	/* Error Response */
-			case 'N':	/* Notice Response */
+			case 'D':	/* Data row */
+				fprintf(stderr, "<= BE DataRow\n");
+				read_and_discard(conn);
+				break;
+
+			case 'E':	/* Error response */
+			case 'N':	/* Notice response */
 				if (kind == 'E')
 					fprintf(stderr, "<= BE ErrorResponse(");
 				else
@@ -109,15 +99,13 @@ void read_until_ready_for_query(PGconn *conn)
 				pg_free(buf);
 				break;
 
-			case 'Z':	/* Ready for Query */
-				len = read_int32(conn);
-				c = read_char(conn);
-				fprintf(stderr, "<= BE ReadyForQuery(%c)\n", c);
-				cont = 0;
+			case 'G':	/* Copy in response */
+				fprintf(stderr, "<= BE CopyInResponse\n");
+				read_and_discard(conn);
 				break;
 
-			case 't':	/* Parameter description */
-				fprintf(stderr, "<= BE ParameterDescription\n");
+			case 'H':	/* Copy out response */
+				fprintf(stderr, "<= BE CopyOutResponse\n");
 				read_and_discard(conn);
 				break;
 
@@ -126,8 +114,50 @@ void read_until_ready_for_query(PGconn *conn)
 				read_and_discard(conn);
 				break;
 
+			case 'S':	/* Parameter status */
+				fprintf(stderr, "<= BE ParameterStatus\n");
+				read_and_discard(conn);
+				break;
+
+			case 'T':	/* Row Description */
+				fprintf(stderr, "<= BE RowDescription\n");
+				read_and_discard(conn);
+				break;
+
+			case 'V':	/* Function call response */
+				fprintf(stderr, "<= BE FunctionCallResponse\n");
+				read_and_discard(conn);
+				break;
+
+			case 'W':	/* Copy both response */
+				fprintf(stderr, "<= BE CopyBothResponse\n");
+				read_and_discard(conn);
+				break;
+
+			case 'Z':	/* Ready for Query */
+				len = read_int32(conn);
+				c = read_char(conn);
+				fprintf(stderr, "<= BE ReadyForQuery(%c)\n", c);
+				cont = 0;
+				break;
+
+			case 'd':	/* Copy Data */
+				fprintf(stderr, "<= BE CopyData\n");
+				read_and_discard(conn);
+				break;
+
+			case 'n':	/* No data */
+				fprintf(stderr, "<= BE NoData\n");
+				read_and_discard(conn);
+				break;
+
 			case 's':	/* Portal suspended */
 				fprintf(stderr, "<= BE PortalSuspended\n");
+				read_and_discard(conn);
+				break;
+
+			case 't':	/* Parameter description */
+				fprintf(stderr, "<= BE ParameterDescription\n");
 				read_and_discard(conn);
 				break;
 
