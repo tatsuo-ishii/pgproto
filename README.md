@@ -18,6 +18,16 @@ especially when dealing with extended protocol.
 
 # Example 
 
+In the example below, the first character in the file (i.e. 'Q')
+indicates the message kind specified in the PostgreSQL
+frontend/backend protocol. Exceptions are 'Y' and 'y'. 'Y' reads
+messages from backend until 'Ready for query' is received. 'y' reads
+messages from backend while messages are coming from backend then
+stops if messages are not available for 1 second. 'Y' is used for
+waiting for reply of 'Q' (simple query) or after 'S' (sync) in
+extended queries. 'y' can be used for receiving messages after 'H'
+(flush).
+
 Here is an example input file:
 
 ~~~~

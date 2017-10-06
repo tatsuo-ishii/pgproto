@@ -34,20 +34,62 @@ static char *read_bytes(int len, PGconn *conn);
 static void read_and_discard(PGconn *conn);
 
 /*
- * Read message from connection until ready for query message is received.
+ * Read message from connection until ready for query message is received.  If
+ * a positive timeout is given, wait for timeout seconds then return if no
+ * data is availble from the connection.
  */
-void read_until_ready_for_query(PGconn *conn)
+void read_until_ready_for_query(PGconn *conn, int timeout)
 {
 	int kind;
 	int len;
 	char *buf;
 	char c;
 	char *p;
+	int fd;
+	int cont;
+	struct timeval timeoutval;
+	fd_set readmask;
+	int fds;
 
-	int cont = 1;
+	cont = 1;
 
 	while (cont)
 	{
+		if (timeout > 0)
+		{
+			fd = PQsocket(conn);
+
+			for(;;)
+			{
+				FD_ZERO(&readmask);
+				FD_SET(fd, &readmask);
+				timeoutval.tv_sec = timeout;
+				timeoutval.tv_usec = 0;
+				fds = select(fd + 1, &readmask, NULL, NULL, &timeoutval);
+				if (fds == -1)
+				{
+					if (errno == EAGAIN || errno == EINTR)
+					{
+						continue;
+					}
+					else
+					{
+						fprintf(stderr, "reading from Pgpool-II failed. reason: %s\n",
+								strerror(errno));
+						exit(1);
+					}
+				}
+				else if (fds == 0)
+				{
+					/* socket is not ready for reading */
+					return;
+				}
+				else
+					/* socket is ready for reading */
+					break;
+			}
+		}
+
 		kind = read_char(conn);
 		switch(kind)
 		{

@@ -16,5 +16,5 @@
 #ifndef READ_H
 #define READ_H
 
-extern void read_until_ready_for_query(PGconn *conn);
+extern void read_until_ready_for_query(PGconn *conn, int check_input);
 #endif

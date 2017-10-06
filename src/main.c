@@ -316,7 +316,11 @@ static int process_message_type(int kind, char *buf, PGconn *conn)
 	switch(kind)
 	{
 		case 'Y':
-			read_until_ready_for_query(conn);
+			read_until_ready_for_query(conn, 0);
+			break;
+
+		case 'y':
+			read_until_ready_for_query(conn, 1);
 			break;
 
 		case 'X':
