@@ -124,5 +124,5 @@ Usage: pgproto
 # History
 
 * 2017/10/10: V1.1 release.
-** Add support for 'y' message.
+  * Add support for 'y' message.
 * 2017/08/02: v1.0 release.
