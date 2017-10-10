@@ -120,3 +120,9 @@ Usage: pgproto
 * Many message types are not supported yet (patches are welcome!)
 
 * Pgproto does not support SSL connections.
+
+# History
+
+* 2017/10/10: V1.1 release.
+** Add support for 'y' message.
+* 2017/08/02: v1.0 release.

@@ -37,3 +37,8 @@ About the protocol data file format definition.
 
 - For frontend to read a message from backend till "ready for query"
   received, use 'Y'.
+
+- For frontend to read a message from backend, use 'Y'. This will
+  return to frontend if there's no message arriving from backend for
+  last 1 second. This is useful for after issuing 'H' (flush)
+  messages.
