@@ -17,7 +17,7 @@
 #define PACKAGE_NAME "pgproto"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "pgproto 1.1"
+#define PACKAGE_STRING "pgproto 1.2"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "pgproto"
@@ -26,7 +26,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.1"
+#define PACKAGE_VERSION "1.2"
 
 /* Version number of package */
-#define VERSION "1.1"
+#define VERSION "1.2"

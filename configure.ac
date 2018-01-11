@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT(pgproto, 1.1, [ishii@sraoss.co.jp])
+AC_INIT(pgproto, 1.2, [ishii@sraoss.co.jp])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src/main.c])
 AC_CONFIG_HEADERS([config.h])
