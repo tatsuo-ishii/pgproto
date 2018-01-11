@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017	Tatsuo Ishii
+ * Copyright (c) 2017-2018	Tatsuo Ishii
  *
  * Permission to use, copy, modify, and distribute this software and
  * its documentation for any purpose and without fee is hereby
@@ -32,6 +32,8 @@ typedef struct {
 	int	size;	/* message length excluding this (in host order) */
 	char message[1];	/* actual message (variable length) */
 } PROTO_DATA;
+
+extern int read_nap;
 
 #endif	/* PGPROTO_H */
 

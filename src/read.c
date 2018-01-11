@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017	Tatsuo Ishii
+ * Copyright (c) 2017-2018	Tatsuo Ishii
  *
  * Permission to use, copy, modify, and distribute this software and
  * its documentation for any purpose and without fee is hereby
@@ -207,6 +207,12 @@ void read_until_ready_for_query(PGconn *conn, int timeout)
 				fprintf(stderr, "<= BE (%c)\n", kind);
 				read_and_discard(conn);
 				break;
+		}
+
+		/* If nap-bwteen-line is requested, nap for some time */
+		if (read_nap > 0)
+		{
+			(void)usleep(read_nap);
 		}
 	}
 }

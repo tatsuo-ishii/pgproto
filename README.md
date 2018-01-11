@@ -106,10 +106,13 @@ Usage: pgproto
 -u, --user USERNAME (default: OS user)
 -d, --database DATABASENAME (default: same as user)
 -f, --proto-data-file FILENAME (default: pgproto.data)
+-r, --read-nap NAPTIME (in micro seconds. default: 0)
 -D, --debug
 -?, --help
 -v, --version
 ~~~~
+
+* Setting "read-nap" for greater than 0 will let pgproto sleep between each data reading from socket. This is useful to simulate slow clients.
 
 # Restrictions
 
@@ -123,6 +126,8 @@ Usage: pgproto
 
 # History
 
+* 2018/1/11: V1.2 release.
+  * Add support for 'read-nap' option.
 * 2017/10/10: V1.1 release.
   * Add support for 'y' message.
 * 2017/08/02: v1.0 release.

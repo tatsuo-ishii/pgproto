@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017	Tatsuo Ishii
+ * Copyright (c) 2017-2018	Tatsuo Ishii
  *
  * Permission to use, copy, modify, and distribute this software and
  * its documentation for any purpose and without fee is hereby
@@ -39,6 +39,8 @@ static void read_and_process(FILE *fd, PGconn *conn);
 static int process_a_line(char *buf, PGconn *con);
 static int process_message_type(int kind, char *buf, PGconn *conn);
 
+int read_nap = 0;
+
 int main(int argc, char **argv)
 {
 	int opt;
@@ -63,6 +65,7 @@ int main(int argc, char **argv)
 		{"debug", no_argument, NULL, 'D'},
 		{"help", no_argument, NULL, '?'},
 		{"version", no_argument, NULL, 'v'},
+		{"read-nap", optional_argument, NULL, 'r'},
 		{NULL, 0, NULL, 0}
 	};
 
@@ -75,7 +78,7 @@ int main(int argc, char **argv)
 	if ((env = getenv("PGUSER")) != NULL && *env != '\0')
 		user = env;
 
-	while ((opt = getopt_long(argc, argv, "v?Dh:p:u:d:f:", long_options, &optindex)) != -1)
+	while ((opt = getopt_long(argc, argv, "v?Dh:p:u:d:f:r:", long_options, &optindex)) != -1)
 	{
 		switch (opt)
 		{
@@ -111,6 +114,10 @@ int main(int argc, char **argv)
 
 			case 'f':
 				data_file = pg_strdup(optarg);
+				break;
+
+			case 'r':
+				read_nap = atoi(optarg);
 				break;
 
 			default:
@@ -152,6 +159,7 @@ static void usage(void)
 		   "-u, --user USERNAME (default: OS user)\n"
 		   "-d, --database DATABASENAME (default: same as user)\n"
 		   "-f, --proto-data-file FILENAME (default: pgproto.data)\n"
+		   "-r, --read-nap NAPTIME (in micro seconds. default: 0)\n"
 		   "-D, --debug\n"
 		   "-?, --help\n"
 		   "-v, --version\n",
