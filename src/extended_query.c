@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017	Tatsuo Ishii
+ * Copyright (c) 2017-2018	Tatsuo Ishii
  *
  * Permission to use, copy, modify, and distribute this software and
  * its documentation for any purpose and without fee is hereby
@@ -104,7 +104,7 @@ void process_parse(char *buf, PGconn *conn)
 }
 
 /*
- * Send bind messae. "conn" should at the point right after the message kind
+ * Send bind messae. "conn" should be at the point right after the message kind
  * was read.
  */
 void process_bind(char *buf, PGconn *conn)
