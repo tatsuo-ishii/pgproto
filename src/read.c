@@ -32,6 +32,7 @@ static int read_int32(PGconn *conn);
 static int read_int16(PGconn *conn);
 static char *read_bytes(int len, PGconn *conn);
 static void read_and_discard(PGconn *conn);
+static void read_it(PGconn *conn, char * buf, int len);
 
 /*
  * Read message from connection until ready for query message is received.  If
@@ -223,21 +224,8 @@ void read_until_ready_for_query(PGconn *conn, int timeout)
 static char read_char(PGconn *conn)
 {
 	char c;
-	int sts;
 
-	sts = read(PQsocket(conn), &c, sizeof(c));
-
-	if (sts == 0)
-	{
-		fprintf(stderr, "read_char: EOF detected");
-		exit(1);
-	}
-
-	else if (sts < 0)
-	{
-		fprintf(stderr, "read_char: read(2) returns error (%s)\n", strerror(errno));
-		exit(1);
-	}
+	read_it(conn, (char *)&c, sizeof(c));
 
 	return c;
 }
@@ -248,21 +236,8 @@ static char read_char(PGconn *conn)
 static int read_int32(PGconn *conn)
 {
 	int len;
-	int sts;
 
-	sts = read(PQsocket(conn), &len, sizeof(len));
-
-	if (sts == 0)
-	{
-		fprintf(stderr, "read_int32: EOF detected");
-		exit(1);
-	}
-
-	else if (sts < 0)
-	{
-		fprintf(stderr, "read_int32: read(2) returns error\n");
-		exit(1);
-	}
+	read_it(conn, (char *)&len, sizeof(len));
 
 	return ntohl(len);
 }
@@ -273,21 +248,8 @@ static int read_int32(PGconn *conn)
 static int read_int16(PGconn *conn)
 {
 	short len;
-	int sts;
 
-	sts = read(PQsocket(conn), &len, sizeof(len));
-
-	if (sts == 0)
-	{
-		fprintf(stderr, "read_int16: EOF detected");
-		exit(1);
-	}
-
-	else if (sts < 0)
-	{
-		fprintf(stderr, "read_int16: read(2) returns error\n");
-		exit(1);
-	}
+	read_it(conn, (char *)&len, sizeof(len));
 
 	return ntohs(len);
 }
@@ -298,24 +260,11 @@ static int read_int16(PGconn *conn)
  */
 static char *read_bytes(int len, PGconn *conn)
 {
-	int sts;
 	char *buf;
 
 	buf = pg_malloc(len);
 
-	sts = read(PQsocket(conn), buf, len);
-
-	if (sts == 0)
-	{
-		fprintf(stderr, "read_bytes: EOF detected");
-		exit(1);
-	}
-
-	else if (sts < 0)
-	{
-		fprintf(stderr, "read_bytes: read(2) returns error\n");
-		exit(1);
-	}
+	read_it(conn, buf, len);
 
 	return buf;
 }
@@ -335,4 +284,36 @@ static void read_and_discard(PGconn *conn)
 		buf = read_bytes(len - sizeof(int), conn);
 		pg_free(buf);
 	}
+}
+
+/*
+ * Read requested bytes from conn. exit in case of error or EOF.
+ */
+static void read_it(PGconn *conn, char *buf, int len)
+{
+	int sts;
+
+	if (len <= 0)
+		return;
+
+	for (;;)
+	{
+		sts = read(PQsocket(conn), buf, len);
+
+		if (sts == 0)
+		{
+			fprintf(stderr, "read_it: EOF detected");
+			exit(1);
+		}
+		else if (sts < 0)
+		{
+			fprintf(stderr, "read_it: read(2) returns error %s\n", strerror(errno));
+			exit(1);
+		}
+
+		len -= sts;
+
+		if (len <= 0)
+			break;
+	}	
 }
