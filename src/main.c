@@ -135,6 +135,9 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
+	/*
+	 * Set the socket to non block.
+	 */
 	if (fcntl(PQsocket(con), F_SETFL, var & ~O_NONBLOCK) == -1)
 	{
 		fprintf(stderr, "fcntl failed (%s)\n", strerror(errno));
