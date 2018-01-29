@@ -312,6 +312,7 @@ static void read_it(PGconn *conn, char *buf, int len)
 		}
 
 		len -= sts;
+		buf += sts;
 
 		if (len <= 0)
 			break;
