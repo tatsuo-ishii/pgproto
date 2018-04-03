@@ -87,14 +87,20 @@ char *buffer_read_string(char *buf, char **bufp)
 	len = strlen(buf);
 	p = str = pg_malloc(len+1);
 
-	while (*buf && *buf != '\n' && *buf != '\t')
+	do
 	{
-		*p++ = *buf++;
-	}
+		/* skip '\' */
+		if (*buf == '\\')
+		{
+			buf++;
+		}
 
-	if (*(p - 1) != '"')
+		*p++ = *buf++;
+	} while (*buf && *buf != '\n' && *buf != '\t');
+
+	if (p == str || *(p - 1) != '"')
 	{
-		fprintf(stderr, "buffer_read_string: given string does not end with \"");
+		fprintf(stderr, "buffer_read_string: given string does not end with \"(%c)", p==str?' ':*(p-1));
 		exit(1);
 	}
 

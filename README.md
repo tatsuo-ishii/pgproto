@@ -28,6 +28,16 @@ waiting for reply of 'Q' (simple query) or after 'S' (sync) in
 extended queries. 'y' can be used for receiving messages after 'H'
 (flush).
 
+If you want to include a " (double quotation) in a string data type,
+for example "SELECT * FROM "aaa"", you can qualify it by using \ (back
+slash) like ""SELECT * FROM \"aaa\""
+
+A command line spread over multiple lines can be created using \ as
+well.
+
+'Q'	"SELECT * FROM aaa \
+WHERE a = 1"
+
 Here is an example input file:
 
 ~~~~

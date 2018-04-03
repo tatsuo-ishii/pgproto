@@ -246,17 +246,43 @@ static PGconn *connect_db(char *host, char *port, char *user, char *database)
  */
 static void read_and_process(FILE *fd, PGconn *conn)
 {
+#define PGPROTO_READBUF_LENGTH 8192
 	int status;
-	char buf[4096];
+	char *buf;
+	int buflen;
 	char *p;
+	int len;
+	int readp;
 
 	for (;;)
 	{
-		p = fgets(buf, sizeof(buf), fd);
-		if (p == NULL)
-			break;
+		buflen = PGPROTO_READBUF_LENGTH;
+		buf = pg_malloc(buflen);
+		readp = 0;
+
+		for (;;)
+		{
+			p = fgets(buf + readp, buflen - readp, fd);
+			if (p == NULL)
+			{
+				/* EOF detected */
+				exit(0);
+			}
+
+			/* if ends with backslash + new line, assume it's a continuous line */
+			len = strlen(p);
+			if (p[len - 2] != '\\' || p[len - 1] != '\n')
+			{
+				break;
+			}
+
+			buflen += PGPROTO_READBUF_LENGTH;
+			buf = pg_realloc(buf, buflen);
+			readp += len;
+		}
 
 		status = process_a_line(buf, conn);
+		pg_free(buf);
 
 		if (status < 0)
 		{
@@ -383,6 +409,7 @@ static int process_message_type(int kind, char *buf, PGconn *conn)
 			break;
 
 		default:
+			fprintf(stderr, "Unknown kind: %c", kind);
 			break;
 	}
 	return 0;
