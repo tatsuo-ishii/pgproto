@@ -184,6 +184,11 @@ void read_until_ready_for_query(PGconn *conn, int timeout)
 				cont = 0;
 				break;
 
+			case 'c':	/* Copy Done */
+				fprintf(stderr, "<= BE CopyDone\n");
+				read_and_discard(conn);
+				break;
+
 			case 'd':	/* Copy Data */
 				fprintf(stderr, "<= BE CopyData\n");
 				read_and_discard(conn);

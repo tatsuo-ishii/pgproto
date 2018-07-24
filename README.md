@@ -96,6 +96,60 @@ FE=> Sync
 FE=> Terminate
 ~~~~
 
+# Example data files
+
+## Copy
+
+~~~~
+#
+# Test data example
+#
+
+# CopyIn
+#
+'Q'	"COPY t1 FROM STDIN"
+# CopyData
+'d'	"abc"
+# CopyDone
+'c'
+'Y'
+
+# CopyOut
+#
+'Q'	"COPY t1 TO STDOUT"
+'Y'
+
+#
+# Copy fail case
+#
+'Q'	"COPY t1 FROM STDIN"
+# CopyData
+'d'	"abc"
+# CopyFail
+'f'	"pgproto copy fail test"
+'Y'
+'X'
+
+~~~~
+
+## Function call
+
+~~~~
+#
+# Test data example
+#
+
+# Function call (lo_creat)
+# from PostgreSQL's src/include/catalog/pg_proc.data
+# { oid => '957', descr => 'large object create',
+#  proname => 'lo_creat', provolatile => 'v', proparallel => 'u',
+#  prorettype => 'oid', proargtypes => 'int4', prosrc => 'be_lo_creat' },
+
+'F'	957	1	0	1	1	"0"	0
+'Y'
+'X'
+~~~~
+
 # Installation
 
 C compiler, PostgreSQL client library (libq) is required (the version
@@ -134,8 +188,17 @@ Usage: pgproto
 
 * Pgproto does not support SSL connections.
 
+* Copy FROM STDIN support is limited to text arguments only.
+
+* Function call support is limited to text arguments only.
+
 # History
 
+* 2018/7/xx: V1.4 release
+  * Add support for frontend messages "CopyData", "CopyDone", "CopyFail" and "FunctionCall".
+  * Add support for backend messages "CopyDone".
+* 2018/1/29: V1.3 release.
+  * Fix read retry from socket.
 * 2018/1/11: V1.2 release.
   * Add support for 'read-nap' option.
 * 2017/10/10: V1.1 release.

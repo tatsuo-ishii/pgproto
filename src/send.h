@@ -20,5 +20,6 @@ extern void send_char(char c, PGconn *conn);
 extern void send_int(int intval, PGconn *conn);
 extern void send_int16(short shortval, PGconn *conn);
 extern void send_string(char *buf, PGconn *conn);
+extern void send_byte(char *buf, int len, PGconn *conn);
 
 #endif

@@ -69,3 +69,13 @@ void send_string(char *buf, PGconn *conn)
 
 	status = write(PQsocket(conn), buf, strlen(buf)+1);
 }
+
+/*
+ * Send byte to the connection.
+ */
+void send_byte(char *buf, int len, PGconn *conn)
+{
+	int status;
+
+	status = write(PQsocket(conn), buf, len);
+}

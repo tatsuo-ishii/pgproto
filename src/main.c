@@ -38,6 +38,7 @@ static PGconn *connect_db(char *host, char *port, char *user, char *database);
 static void read_and_process(FILE *fd, PGconn *conn);
 static int process_a_line(char *buf, PGconn *con);
 static int process_message_type(int kind, char *buf, PGconn *conn);
+static void process_function_call(char *buf, PGconn *conn);
 
 int read_nap = 0;
 
@@ -348,6 +349,8 @@ static int process_message_type(int kind, char *buf, PGconn *conn)
 #endif
 
 	char *query;
+	char *err_msg;
+	char *data;
 	char *bufp;
 
 	switch(kind)
@@ -381,11 +384,37 @@ static int process_message_type(int kind, char *buf, PGconn *conn)
 		case 'Q':
 			buf++;
 			query = buffer_read_string(buf, &bufp);
-			fprintf(stderr, "FE=> Query(query=\"%s\")\n", query);
+			fprintf(stderr, "FE=> Query (query=\"%s\")\n", query);
 			send_char((char)kind, conn);
 			send_int(sizeof(int)+strlen(query)+1, conn);
 			send_string(query, conn);
 			pg_free(query);
+			break;
+
+		case 'd':
+			buf++;
+			data = buffer_read_string(buf, &bufp);
+			fprintf(stderr, "FE=> CopyData (copy data=\"%s\")\n", data);
+			send_char((char)kind, conn);
+			send_int(sizeof(int)+strlen(data), conn);
+			send_byte(data, strlen(data), conn);
+			pg_free(data);
+			break;
+
+		case 'c':
+			fprintf(stderr, "FE=> CopyDone\n");
+			send_char((char)kind, conn);
+			send_int(sizeof(int), conn);
+			break;
+
+		case 'f':
+			buf++;
+			err_msg = buffer_read_string(buf, &bufp);
+			fprintf(stderr, "FE=> CopyFail (error message=\"%s\")\n", err_msg);
+			send_char((char)kind, conn);
+			send_int(sizeof(int)+strlen(err_msg)+1, conn);
+			send_string(err_msg, conn);
+			pg_free(err_msg);
 			break;
 
 		case 'P':
@@ -408,9 +437,151 @@ static int process_message_type(int kind, char *buf, PGconn *conn)
 			process_close(buf, conn);
 			break;
 
+		case 'F':
+			process_function_call(buf, conn);
+			break;
+
 		default:
 			fprintf(stderr, "Unknown kind: %c", kind);
 			break;
 	}
 	return 0;
+}
+
+/*
+ * Process function call messaage
+ */
+static void process_function_call(char *buf, PGconn *conn)
+{
+	int len;
+	int foid;
+	short nparams;
+	short ncodes;
+	short codes[MAXENTRIES];
+	int paramlens[MAXENTRIES];
+	char *paramvals[MAXENTRIES];
+	short result_formatcode;
+	int i;
+	char *bufp;
+
+	SKIP_TABS(buf);
+
+	len = sizeof(int);
+
+	/* function oid */
+	foid = buffer_read_int(buf, &bufp);
+	buf = bufp;
+	len += sizeof(int);
+
+	SKIP_TABS(buf);
+
+	/* number of argument format codes */
+	ncodes = buffer_read_int(buf, &bufp);
+	len += sizeof(short) + sizeof(short)*ncodes;
+	buf = bufp;
+
+	SKIP_TABS(buf);
+
+	if (ncodes > MAXENTRIES)
+	{
+		fprintf(stderr, "Too many argument format codes for function call message (%d)\n", ncodes);
+		exit(1);
+	}
+
+	/* read each format code */
+	if (ncodes > 0)
+	{
+		for (i=0;i<ncodes;i++)
+		{
+			codes[i] = buffer_read_int(buf, &bufp);
+			buf = bufp;
+			SKIP_TABS(buf);
+		}
+	}
+
+	/* number of function arguments */
+	nparams = buffer_read_int(buf, &bufp);
+	len += sizeof(short);
+	buf = bufp;
+	SKIP_TABS(buf);
+
+	if (nparams > MAXENTRIES)
+	{
+		fprintf(stderr, "Too many function arguments for function call message (%d)\n", nparams);
+		exit(1);
+	}
+
+	/* read each function argument */
+	for (i=0;i<nparams;i++)
+	{
+		paramlens[i] = buffer_read_int(buf, &bufp);
+		len += sizeof(int);
+		buf = bufp;
+		SKIP_TABS(buf);
+
+		if (paramlens[i] > 0)
+		{
+			paramvals[i] = buffer_read_string(buf, &bufp);
+			buf = bufp;
+			SKIP_TABS(buf);
+			len += paramlens[i];
+		}
+	}
+
+	SKIP_TABS(buf);
+
+	/* result format code */
+	result_formatcode = buffer_read_int(buf, &bufp);
+
+	if (result_formatcode != 0 && result_formatcode != 1)
+	{
+		fprintf(stderr, "Result format code is not either 0 or 1 (%d)\n", result_formatcode);
+		exit(1);
+	}
+
+	buf = bufp;
+	len += sizeof(short);
+	SKIP_TABS(buf);
+
+	fprintf(stderr, "\n");
+
+	send_char('F', conn);
+	send_int(len, conn);	/* message length */
+	send_int(foid, conn);	/* function oid */
+	send_int16(ncodes, conn);	/* number of argument format code */
+	for (i=0;i<ncodes;i++)	/* argument format codes */
+	{
+		send_int16(codes[i], conn);
+	}
+
+	send_int16(nparams, conn);	/* number of function arguments */
+	for (i=0;i<nparams;i++)		/* function arguments */
+	{
+		send_int(paramlens[i], conn);	/* argument length */
+
+		if (paramlens[i] != -1)
+		{
+			if (ncodes == 0)
+			{
+				send_string(paramvals[i], conn);
+			}
+			else if (ncodes == 1)
+			{
+				if (codes[0] == 0)
+					send_string(paramvals[i], conn);
+				else
+					send_int(atoi(paramvals[i]), conn);
+			}
+			else
+			{
+				if (codes[i] == 0)
+					send_string(paramvals[i], conn);
+				else
+					send_int(atoi(paramvals[i]), conn);
+			}
+		}
+	}
+
+	/* result format code */
+	send_int16(result_formatcode, conn);
 }

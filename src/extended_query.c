@@ -169,13 +169,14 @@ void process_bind(char *buf, PGconn *conn)
 
 	if (nparams > MAXENTRIES)
 	{
-		fprintf(stderr, "Too many params for bind message (%d)\n", ncodes);
+		fprintf(stderr, "Too many params for bind message (%d)\n", nparams);
 		exit(1);
 	}
 
 	for (i=0;i<nparams;i++)
 	{
 		paramlens[i] = buffer_read_int(buf, &bufp);
+		len += sizeof(int);
 
 		if (paramlens[i] > 0)
 		{
