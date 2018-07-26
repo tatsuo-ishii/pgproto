@@ -559,25 +559,30 @@ static void process_function_call(char *buf, PGconn *conn)
 	{
 		send_int(paramlens[i], conn);	/* argument length */
 
+		/* NULL? */
 		if (paramlens[i] != -1)
 		{
-			if (ncodes == 0)
+			/*
+			 * Actually we only support text format only for now.  To support
+			 * binary format, we need a binary expression in the data file.
+			 */
+			if (ncodes == 0)	/* text format? */
 			{
-				send_string(paramvals[i], conn);
+				send_byte(paramvals[i], paramlens[i], conn);
 			}
 			else if (ncodes == 1)
 			{
 				if (codes[0] == 0)
-					send_string(paramvals[i], conn);
+					send_byte(paramvals[i], paramlens[i], conn);
 				else
-					send_int(atoi(paramvals[i]), conn);
+					send_byte(paramvals[i], paramlens[i], conn);
 			}
 			else
 			{
 				if (codes[i] == 0)
-					send_string(paramvals[i], conn);
+					send_byte(paramvals[i], paramlens[i], conn);
 				else
-					send_int(atoi(paramvals[i]), conn);
+					send_byte(paramvals[i], paramlens[i], conn);
 			}
 		}
 	}
