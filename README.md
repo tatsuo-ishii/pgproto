@@ -194,6 +194,9 @@ Usage: pgproto
 
 # History
 
+* 2018/8/9: V1.5 release
+  * Fix bug with function call support.
+
 * 2018/7/24: V1.4 release
   * Add support for frontend messages "CopyData", "CopyDone", "CopyFail" and "FunctionCall".
   * Add support for backend messages "CopyDone".
