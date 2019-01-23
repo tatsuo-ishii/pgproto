@@ -11,7 +11,7 @@ All the data exchanged between Pgproto and PostgreSQL are printed to
 stderr in the trace format similar to the PostgreSQL JDBC driver.
 
 The motivation behind Pgproto is, to test
-[Pgpool-II](http://pgpoo.net) which is proxy server between clients
+[Pgpool-II](http://pgpool.net) which is proxy server between clients
 and PostgreSQL by sending arbitrary combinations of message, which is
 very hard to implement using existing PostgreSQL clients API,
 especially when dealing with extended protocol.
